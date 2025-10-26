@@ -45,7 +45,7 @@ const Index = () => {
               <Button 
                 variant="hero" 
                 size="lg"
-                onClick={() => navigate('/lobby')}
+                onClick={() => navigate('/auth')}
                 className="text-lg px-10 py-6 h-auto"
               >
                 Enter Lobby

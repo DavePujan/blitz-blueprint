@@ -14,7 +14,128 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      room_players: {
+        Row: {
+          id: string
+          is_ready: boolean
+          joined_at: string
+          player_id: string
+          room_id: string
+          team: string | null
+        }
+        Insert: {
+          id?: string
+          is_ready?: boolean
+          joined_at?: string
+          player_id: string
+          room_id: string
+          team?: string | null
+        }
+        Update: {
+          id?: string
+          is_ready?: boolean
+          joined_at?: string
+          player_id?: string
+          room_id?: string
+          team?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_players_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_players_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          created_at: string
+          created_by: string
+          current_players: number
+          ended_at: string | null
+          game_mode: string
+          id: string
+          map_name: string
+          max_players: number
+          name: string
+          password: string | null
+          room_code: string
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          current_players?: number
+          ended_at?: string | null
+          game_mode?: string
+          id?: string
+          map_name?: string
+          max_players?: number
+          name: string
+          password?: string | null
+          room_code: string
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          current_players?: number
+          ended_at?: string | null
+          game_mode?: string
+          id?: string
+          map_name?: string
+          max_players?: number
+          name?: string
+          password?: string | null
+          room_code?: string
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rooms_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
