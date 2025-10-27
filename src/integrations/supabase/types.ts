@@ -78,6 +78,13 @@ export type Database = {
             referencedRelation: "rooms"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "room_players_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       rooms: {
@@ -138,7 +145,62 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      rooms_public: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          current_players: number | null
+          ended_at: string | null
+          game_mode: string | null
+          has_password: boolean | null
+          id: string | null
+          map_name: string | null
+          max_players: number | null
+          name: string | null
+          room_code: string | null
+          started_at: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          current_players?: number | null
+          ended_at?: string | null
+          game_mode?: string | null
+          has_password?: never
+          id?: string | null
+          map_name?: string | null
+          max_players?: number | null
+          name?: string | null
+          room_code?: string | null
+          started_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          current_players?: number | null
+          ended_at?: string | null
+          game_mode?: string | null
+          has_password?: never
+          id?: string | null
+          map_name?: string | null
+          max_players?: number | null
+          name?: string | null
+          room_code?: string | null
+          started_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rooms_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       set_room_password: {
