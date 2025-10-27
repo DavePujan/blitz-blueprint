@@ -28,7 +28,7 @@ const Lobby = () => {
     }
 
     setCreatingRoom(true);
-    const room = await createRoom(
+    const roomId = await createRoom(
       roomName,
       password || null,
       gameMode,
@@ -36,8 +36,8 @@ const Lobby = () => {
     );
     setCreatingRoom(false);
 
-    if (room) {
-      navigate('/game-demo');
+    if (roomId) {
+      navigate(`/room/${roomId}`);
     }
   };
 
@@ -47,7 +47,7 @@ const Lobby = () => {
     setJoiningRoom(false);
 
     if (success) {
-      navigate('/game-demo');
+      navigate(`/room/${roomId}`);
     }
   };
 

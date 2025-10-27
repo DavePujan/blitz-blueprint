@@ -71,7 +71,7 @@ export const useRooms = () => {
     };
   }, []);
 
-  const createRoom = async (name: string, password: string | null, gameMode: string, mapName: string) => {
+  const createRoom = async (name: string, password: string | null, gameMode: string, mapName: string): Promise<string | null> => {
     if (!user) return null;
 
     try {
@@ -109,7 +109,7 @@ export const useRooms = () => {
         description: `Room code: ${roomCode}`,
       });
 
-      return data;
+      return data.id;
     } catch (error: any) {
       toast({
         title: "Failed to create room",
