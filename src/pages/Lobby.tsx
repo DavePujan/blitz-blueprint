@@ -54,7 +54,7 @@ const Lobby = () => {
   const handleJoinByCode = async () => {
     const room = rooms.find(r => r.room_code === roomCode);
     if (room) {
-      await handleJoinRoom(room.id, !!room.password);
+      await handleJoinRoom(room.id, room.has_password);
     }
   };
 
@@ -261,7 +261,7 @@ const Lobby = () => {
                   <RoomCard
                     key={room.id}
                     room={room}
-                    onJoin={() => handleJoinRoom(room.id, !!room.password)}
+                    onJoin={() => handleJoinRoom(room.id, room.has_password)}
                     onCopyCode={handleCopyCode}
                     isJoining={joiningRoom}
                   />
@@ -307,7 +307,7 @@ const RoomCard = ({
         <Users className="w-4 h-4 text-primary" />
         <span>{room.current_players}/{room.max_players}</span>
       </div>
-      {room.password && (
+      {room.has_password && (
         <div className="flex items-center gap-2 text-sm text-secondary">
           <Lock className="w-4 h-4" />
           <span>Protected</span>

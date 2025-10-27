@@ -87,11 +87,11 @@ export type Database = {
           current_players: number
           ended_at: string | null
           game_mode: string
+          hashed_password: string | null
           id: string
           map_name: string
           max_players: number
           name: string
-          password: string | null
           room_code: string
           started_at: string | null
           status: string
@@ -102,11 +102,11 @@ export type Database = {
           current_players?: number
           ended_at?: string | null
           game_mode?: string
+          hashed_password?: string | null
           id?: string
           map_name?: string
           max_players?: number
           name: string
-          password?: string | null
           room_code: string
           started_at?: string | null
           status?: string
@@ -117,11 +117,11 @@ export type Database = {
           current_players?: number
           ended_at?: string | null
           game_mode?: string
+          hashed_password?: string | null
           id?: string
           map_name?: string
           max_players?: number
           name?: string
-          password?: string | null
           room_code?: string
           started_at?: string | null
           status?: string
@@ -141,7 +141,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      set_room_password: {
+        Args: { new_password: string; room_id: string }
+        Returns: undefined
+      }
+      verify_room_password: {
+        Args: { password_attempt: string; room_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

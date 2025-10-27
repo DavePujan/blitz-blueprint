@@ -7,7 +7,6 @@ interface Room {
   id: string;
   room_code: string;
   name: string;
-  password: string | null;
   max_players: number;
   current_players: number;
   status: string;
@@ -15,6 +14,7 @@ interface Room {
   map_name: string;
   created_by: string;
   created_at: string;
+  has_password: boolean;
 }
 
 export const useRooms = () => {
@@ -27,12 +27,20 @@ export const useRooms = () => {
     try {
       const { data, error } = await supabase
         .from("rooms")
-        .select("*")
+        .select("id, room_code, name, max_players, current_players, status, game_mode, map_name, created_by, created_at, hashed_password")
         .eq("status", "waiting")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setRooms(data || []);
+      
+      // Map to include has_password boolean instead of exposing hash
+      const roomsWithPasswordFlag = data?.map(room => ({
+        ...room,
+        has_password: !!room.hashed_password,
+        hashed_password: undefined
+      })) || [];
+      
+      setRooms(roomsWithPasswordFlag as Room[]);
     } catch (error: any) {
       toast({
         title: "Failed to fetch rooms",
@@ -79,7 +87,6 @@ export const useRooms = () => {
         .insert({
           room_code: roomCode,
           name,
-          password,
           game_mode: gameMode,
           map_name: mapName,
           created_by: user.id,
@@ -88,6 +95,16 @@ export const useRooms = () => {
         .single();
 
       if (error) throw error;
+
+      // Set password if provided (will be hashed automatically)
+      if (password) {
+        const { error: pwError } = await supabase.rpc('set_room_password', {
+          room_id: data.id,
+          new_password: password
+        });
+        
+        if (pwError) throw pwError;
+      }
 
       // Join the room as the creator
       await joinRoom(data.id);
@@ -112,16 +129,15 @@ export const useRooms = () => {
     if (!user) return false;
 
     try {
-      // Check if room requires password
-      const { data: room, error: roomError } = await supabase
-        .from("rooms")
-        .select("password")
-        .eq("id", roomId)
-        .single();
+      // Verify password using secure server-side function
+      const { data: isValid, error: verifyError } = await supabase.rpc('verify_room_password', {
+        room_id: roomId,
+        password_attempt: password || ''
+      });
 
-      if (roomError) throw roomError;
+      if (verifyError) throw verifyError;
 
-      if (room.password && room.password !== password) {
+      if (!isValid) {
         toast({
           title: "Invalid password",
           description: "The password you entered is incorrect",
