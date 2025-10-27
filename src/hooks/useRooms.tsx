@@ -25,22 +25,17 @@ export const useRooms = () => {
 
   const fetchRooms = async () => {
     try {
+      // Use the secure rooms_public view instead of the rooms table directly
+      // This prevents password hashes from being exposed in client queries
       const { data, error } = await supabase
-        .from("rooms")
-        .select("id, room_code, name, max_players, current_players, status, game_mode, map_name, created_by, created_at, hashed_password")
+        .from("rooms_public")
+        .select("id, room_code, name, max_players, current_players, status, game_mode, map_name, created_by, created_at, has_password")
         .eq("status", "waiting")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       
-      // Map to include has_password boolean instead of exposing hash
-      const roomsWithPasswordFlag = data?.map(room => ({
-        ...room,
-        has_password: !!room.hashed_password,
-        hashed_password: undefined
-      })) || [];
-      
-      setRooms(roomsWithPasswordFlag as Room[]);
+      setRooms(data as Room[]);
     } catch (error: any) {
       toast({
         title: "Failed to fetch rooms",
