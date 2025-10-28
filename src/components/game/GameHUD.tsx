@@ -119,6 +119,7 @@ export const GameHUD = () => {
           <div className="tactical-border px-4 py-3 rounded-lg backdrop-blur-sm space-y-1 text-xs text-muted-foreground">
             <div>WASD - Move</div>
             <div>Mouse - Look</div>
+            <div>Click - Shoot</div>
             <div>Shift - Sprint</div>
           </div>
         </div>

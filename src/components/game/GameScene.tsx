@@ -1,9 +1,36 @@
-import { useRef, useState } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
-import { useKeyboardControls, Sky, Environment } from '@react-three/drei';
+import { useState } from 'react';
+import { Sky, Environment } from '@react-three/drei';
 import * as THREE from 'three';
+import { PlayerController } from './PlayerController';
+import { BulletTracer } from './BulletTracer';
+import type { Bullet } from '@/types/game';
+import { useGameNetworking } from '@/hooks/useGameNetworking';
+import { useParams } from 'react-router-dom';
 
 export const GameScene = () => {
+  const { roomId } = useParams();
+  const [bullets, setBullets] = useState<Bullet[]>([]);
+  
+  const { players, shootEvents, updatePosition, broadcastShoot } = useGameNetworking(roomId || 'demo');
+
+  const handleShoot = (origin: THREE.Vector3, direction: THREE.Vector3) => {
+    const newBullet: Bullet = {
+      id: `${Date.now()}_${Math.random()}`,
+      origin: origin.clone(),
+      direction: direction.clone().normalize(),
+    };
+    setBullets((prev) => [...prev, newBullet]);
+    broadcastShoot(origin, direction);
+  };
+
+  const handleBulletComplete = (bulletId: string) => {
+    setBullets((prev) => prev.filter((b) => b.id !== bulletId));
+  };
+
+  const handlePositionUpdate = (position: THREE.Vector3, rotation: THREE.Euler) => {
+    updatePosition(position, rotation);
+  };
+
   return (
     <>
       {/* Lighting */}
@@ -23,8 +50,33 @@ export const GameScene = () => {
       {/* Environment */}
       <Environment preset="sunset" />
 
-      {/* Player */}
-      <Player />
+      {/* Player Controller */}
+      <PlayerController onShoot={handleShoot} onPositionUpdate={handlePositionUpdate} />
+
+      {/* Other Players */}
+      {Array.from(players.entries()).map(([id, player]) => (
+        <OtherPlayer key={id} player={player} />
+      ))}
+
+      {/* Bullet Tracers */}
+      {bullets.map((bullet) => (
+        <BulletTracer
+          key={bullet.id}
+          origin={bullet.origin}
+          direction={bullet.direction}
+          onComplete={() => handleBulletComplete(bullet.id)}
+        />
+      ))}
+
+      {/* Network Shoot Events */}
+      {shootEvents.map((event, index) => (
+        <BulletTracer
+          key={`${event.playerId}_${event.timestamp}_${index}`}
+          origin={new THREE.Vector3(event.origin.x, event.origin.y, event.origin.z)}
+          direction={new THREE.Vector3(event.direction.x, event.direction.y, event.direction.z)}
+          onComplete={() => {}}
+        />
+      ))}
 
       {/* Ground/Arena */}
       <Ground />
@@ -38,86 +90,11 @@ export const GameScene = () => {
   );
 };
 
-const Player = () => {
-  const playerRef = useRef<THREE.Mesh>(null);
-  const [, get] = useKeyboardControls();
-  const { camera } = useThree();
-  
-  // Player state
-  const velocity = useRef(new THREE.Vector3());
-  const direction = useRef(new THREE.Vector3());
-  const [playerPosition] = useState(new THREE.Vector3(0, 1, 0));
-
-  useFrame((state, delta) => {
-    if (!playerRef.current) return;
-
-    const { forward, backward, left, right, sprint } = get();
-    
-    // Calculate movement direction
-    direction.current.set(0, 0, 0);
-    
-    if (forward) direction.current.z -= 1;
-    if (backward) direction.current.z += 1;
-    if (left) direction.current.x -= 1;
-    if (right) direction.current.x += 1;
-
-    // Normalize and apply speed
-    const speed = sprint ? 15 : 8;
-    direction.current.normalize().multiplyScalar(speed * delta);
-
-    // Apply camera rotation to movement
-    const cameraDirection = new THREE.Vector3();
-    camera.getWorldDirection(cameraDirection);
-    cameraDirection.y = 0;
-    cameraDirection.normalize();
-
-    const cameraRight = new THREE.Vector3();
-    cameraRight.crossVectors(cameraDirection, new THREE.Vector3(0, 1, 0));
-
-    const moveDirection = new THREE.Vector3();
-    moveDirection.addScaledVector(cameraDirection, -direction.current.z);
-    moveDirection.addScaledVector(cameraRight, direction.current.x);
-
-    // Update player position
-    playerPosition.add(moveDirection);
-    
-    // Keep player within bounds
-    playerPosition.x = Math.max(-45, Math.min(45, playerPosition.x));
-    playerPosition.z = Math.max(-45, Math.min(45, playerPosition.z));
-
-    playerRef.current.position.copy(playerPosition);
-
-    // Update camera to follow player
-    const cameraOffset = new THREE.Vector3(0, 2, 5);
-    const cameraRotation = new THREE.Euler(0, 0, 0);
-    camera.rotation.copy(cameraRotation);
-    
-    const idealPosition = playerPosition.clone().add(
-      cameraOffset.applyQuaternion(camera.quaternion)
-    );
-    
-    camera.position.lerp(idealPosition, 0.1);
-    camera.lookAt(playerPosition.x, playerPosition.y + 1.5, playerPosition.z);
-  });
-
-  // Mouse look controls
-  useFrame(() => {
-    const handleMouseMove = (event: MouseEvent) => {
-      if (document.pointerLockElement) {
-        camera.rotation.y -= event.movementX * 0.002;
-        camera.rotation.x -= event.movementY * 0.002;
-        camera.rotation.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, camera.rotation.x));
-      }
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    return () => document.removeEventListener('mousemove', handleMouseMove);
-  });
-
+const OtherPlayer = ({ player }: { player: any }) => {
   return (
-    <mesh ref={playerRef} position={[0, 1, 0]} castShadow>
+    <mesh position={[player.position.x, player.position.y, player.position.z]} castShadow>
       <capsuleGeometry args={[0.5, 1, 4, 8]} />
-      <meshStandardMaterial color="#3b82f6" />
+      <meshStandardMaterial color="#ef4444" />
     </mesh>
   );
 };
