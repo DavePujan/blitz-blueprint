@@ -14,6 +14,172 @@ export type Database = {
   }
   public: {
     Tables: {
+      match_analytics: {
+        Row: {
+          accuracy_percentage: number | null
+          created_at: string | null
+          id: string
+          match_duration_seconds: number | null
+          match_ended_at: string | null
+          match_started_at: string
+          room_id: string
+          total_deaths: number | null
+          total_hits: number | null
+          total_kills: number | null
+          total_shots_fired: number | null
+          winning_team: string | null
+        }
+        Insert: {
+          accuracy_percentage?: number | null
+          created_at?: string | null
+          id?: string
+          match_duration_seconds?: number | null
+          match_ended_at?: string | null
+          match_started_at: string
+          room_id: string
+          total_deaths?: number | null
+          total_hits?: number | null
+          total_kills?: number | null
+          total_shots_fired?: number | null
+          winning_team?: string | null
+        }
+        Update: {
+          accuracy_percentage?: number | null
+          created_at?: string | null
+          id?: string
+          match_duration_seconds?: number | null
+          match_ended_at?: string | null
+          match_started_at?: string
+          room_id?: string
+          total_deaths?: number | null
+          total_hits?: number | null
+          total_kills?: number | null
+          total_shots_fired?: number | null
+          winning_team?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_analytics_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_analytics_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      match_events: {
+        Row: {
+          damage: number | null
+          event_type: string
+          id: string
+          match_id: string
+          player_id: string
+          position_x: number | null
+          position_y: number | null
+          position_z: number | null
+          target_player_id: string | null
+          timestamp: string | null
+          weapon_type: string | null
+        }
+        Insert: {
+          damage?: number | null
+          event_type: string
+          id?: string
+          match_id: string
+          player_id: string
+          position_x?: number | null
+          position_y?: number | null
+          position_z?: number | null
+          target_player_id?: string | null
+          timestamp?: string | null
+          weapon_type?: string | null
+        }
+        Update: {
+          damage?: number | null
+          event_type?: string
+          id?: string
+          match_id?: string
+          player_id?: string
+          position_x?: number | null
+          position_y?: number | null
+          position_z?: number | null
+          target_player_id?: string | null
+          timestamp?: string | null
+          weapon_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_events_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "match_analytics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_match_stats: {
+        Row: {
+          accuracy_percentage: number | null
+          assists: number | null
+          created_at: string | null
+          damage_dealt: number | null
+          deaths: number | null
+          id: string
+          kills: number | null
+          match_id: string
+          player_id: string
+          shots_fired: number | null
+          shots_hit: number | null
+          team: string | null
+          time_alive_seconds: number | null
+        }
+        Insert: {
+          accuracy_percentage?: number | null
+          assists?: number | null
+          created_at?: string | null
+          damage_dealt?: number | null
+          deaths?: number | null
+          id?: string
+          kills?: number | null
+          match_id: string
+          player_id: string
+          shots_fired?: number | null
+          shots_hit?: number | null
+          team?: string | null
+          time_alive_seconds?: number | null
+        }
+        Update: {
+          accuracy_percentage?: number | null
+          assists?: number | null
+          created_at?: string | null
+          damage_dealt?: number | null
+          deaths?: number | null
+          id?: string
+          kills?: number | null
+          match_id?: string
+          player_id?: string
+          shots_fired?: number | null
+          shots_hit?: number | null
+          team?: string | null
+          time_alive_seconds?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_match_stats_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "match_analytics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

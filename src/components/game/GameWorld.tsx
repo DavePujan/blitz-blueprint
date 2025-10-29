@@ -2,7 +2,12 @@ import { Canvas } from '@react-three/fiber';
 import { KeyboardControls } from '@react-three/drei';
 import { GameScene } from './GameScene';
 
-export const GameWorld = () => {
+interface GameWorldProps {
+  onHealthUpdate?: (health: number, maxHealth: number) => void;
+  onWeaponUpdate?: (currentAmmo: number, reserveAmmo: number, weaponName: string, isReloading: boolean) => void;
+}
+
+export const GameWorld = ({ onHealthUpdate, onWeaponUpdate }: GameWorldProps) => {
   // Define keyboard controls mapping
   const keyboardMap = [
     { name: 'forward', keys: ['ArrowUp', 'KeyW'] },
@@ -21,7 +26,10 @@ export const GameWorld = () => {
           camera={{ position: [0, 5, 10], fov: 75 }}
           className="bg-background"
         >
-          <GameScene />
+          <GameScene 
+            onHealthUpdate={onHealthUpdate}
+            onWeaponUpdate={onWeaponUpdate}
+          />
         </Canvas>
       </KeyboardControls>
     </div>

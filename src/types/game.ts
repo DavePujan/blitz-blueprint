@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { WeaponType } from './weapons';
 
 // Network packet types for multiplayer synchronization
 export interface PlayerSnapshot {
@@ -6,6 +7,10 @@ export interface PlayerSnapshot {
   position: { x: number; y: number; z: number };
   rotation: { x: number; y: number; z: number };
   health: number;
+  maxHealth: number;
+  currentWeapon: WeaponType;
+  currentAmmo: number;
+  isReloading: boolean;
   timestamp: number;
 }
 
@@ -25,6 +30,7 @@ export interface ShootEvent {
   playerId: string;
   origin: { x: number; y: number; z: number };
   direction: { x: number; y: number; z: number };
+  weaponType: WeaponType;
   timestamp: number;
 }
 

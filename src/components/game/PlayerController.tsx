@@ -2,13 +2,18 @@ import { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useKeyboardControls } from '@react-three/drei';
 import * as THREE from 'three';
+import { useWeaponSystem } from '@/hooks/useWeaponSystem';
+import { usePlayerHealth } from '@/hooks/usePlayerHealth';
+import type { WeaponType } from '@/types/weapons';
 
 interface PlayerControllerProps {
-  onShoot: (origin: THREE.Vector3, direction: THREE.Vector3) => void;
+  onShoot: (origin: THREE.Vector3, direction: THREE.Vector3, weaponType: WeaponType) => void;
   onPositionUpdate: (position: THREE.Vector3, rotation: THREE.Euler) => void;
+  onHealthUpdate: (health: number, maxHealth: number) => void;
+  onWeaponUpdate: (currentAmmo: number, reserveAmmo: number, weaponName: string, isReloading: boolean) => void;
 }
 
-export const PlayerController = ({ onShoot, onPositionUpdate }: PlayerControllerProps) => {
+export const PlayerController = ({ onShoot, onPositionUpdate, onHealthUpdate, onWeaponUpdate }: PlayerControllerProps) => {
   const playerRef = useRef<THREE.Mesh>(null);
   const [, get] = useKeyboardControls();
   const { camera } = useThree();
@@ -16,6 +21,10 @@ export const PlayerController = ({ onShoot, onPositionUpdate }: PlayerController
   const velocity = useRef(new THREE.Vector3());
   const [playerPosition] = useState(new THREE.Vector3(0, 1, 0));
   const [rotation] = useState(new THREE.Euler(0, 0, 0));
+  
+  // Weapon and health systems
+  const { weaponState, currentWeaponStats, canShoot, shoot, reload, switchWeapon } = useWeaponSystem();
+  const { health, maxHealth, isDead, takeDamage } = usePlayerHealth();
   
   // Mouse look state
   const mouseRotation = useRef({ yaw: 0, pitch: 0 });
@@ -38,29 +47,66 @@ export const PlayerController = ({ onShoot, onPositionUpdate }: PlayerController
     };
 
     const handleClick = (event: MouseEvent) => {
-      if (isPointerLocked.current) {
+      if (isPointerLocked.current && !isDead) {
         // Shoot
-        const direction = new THREE.Vector3(0, 0, -1);
-        direction.applyQuaternion(camera.quaternion);
-        onShoot(playerPosition.clone().add(new THREE.Vector3(0, 1.5, 0)), direction);
+        if (canShoot() && shoot()) {
+          const direction = new THREE.Vector3(0, 0, -1);
+          direction.applyQuaternion(camera.quaternion);
+          onShoot(playerPosition.clone().add(new THREE.Vector3(0, 1.5, 0)), direction, weaponState.currentWeapon);
+        }
       } else if (canvas) {
         canvas.requestPointerLock();
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!isPointerLocked.current || isDead) return;
+      
+      // Reload
+      if (event.key === 'r' || event.key === 'R') {
+        reload();
+      }
+      
+      // Weapon switching
+      const weaponKeys: Record<string, WeaponType> = {
+        '1': 'assault_rifle',
+        '2': 'sniper',
+        '3': 'shotgun',
+        '4': 'pistol',
+        '5': 'smg',
+      };
+      
+      if (weaponKeys[event.key]) {
+        switchWeapon(weaponKeys[event.key]);
       }
     };
 
     document.addEventListener('pointerlockchange', handlePointerLockChange);
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('click', handleClick);
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.removeEventListener('pointerlockchange', handlePointerLockChange);
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('click', handleClick);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [camera, onShoot, playerPosition]);
+  }, [camera, onShoot, playerPosition, canShoot, shoot, reload, switchWeapon, weaponState, isDead]);
+
+  // Update HUD with health and weapon info
+  useEffect(() => {
+    onHealthUpdate(health, maxHealth);
+    onWeaponUpdate(
+      weaponState.currentAmmo,
+      weaponState.reserveAmmo,
+      currentWeaponStats.name,
+      weaponState.isReloading
+    );
+  }, [health, maxHealth, weaponState, currentWeaponStats, onHealthUpdate, onWeaponUpdate]);
 
   useFrame((state, delta) => {
-    if (!playerRef.current) return;
+    if (!playerRef.current || isDead) return;
 
     const { forward, backward, left, right, sprint } = get();
     

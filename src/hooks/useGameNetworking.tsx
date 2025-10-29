@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import type { PlayerSnapshot, ShootEvent } from '@/types/game';
+import type { WeaponType } from '@/types/weapons';
 import * as THREE from 'three';
 
 export const useGameNetworking = (roomId: string) => {
@@ -76,7 +77,7 @@ export const useGameNetworking = (roomId: string) => {
     });
   };
 
-  const broadcastShoot = async (origin: THREE.Vector3, direction: THREE.Vector3) => {
+  const broadcastShoot = async (origin: THREE.Vector3, direction: THREE.Vector3, weaponType: WeaponType) => {
     if (!channelRef.current || !user) return;
 
     await channelRef.current.send({
@@ -86,6 +87,7 @@ export const useGameNetworking = (roomId: string) => {
         playerId: user.id,
         origin: { x: origin.x, y: origin.y, z: origin.z },
         direction: { x: direction.x, y: direction.y, z: direction.z },
+        weaponType,
         timestamp: Date.now(),
       },
     });
