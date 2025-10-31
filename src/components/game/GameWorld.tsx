@@ -1,13 +1,24 @@
 import { Canvas } from '@react-three/fiber';
 import { KeyboardControls } from '@react-three/drei';
 import { GameScene } from './GameScene';
+import { GameModeType } from '@/types/gameMode';
+import { MapType } from '@/types/maps';
 
 interface GameWorldProps {
+  gameMode?: GameModeType;
+  mapType?: MapType;
   onHealthUpdate?: (health: number, maxHealth: number) => void;
   onWeaponUpdate?: (currentAmmo: number, reserveAmmo: number, weaponName: string, isReloading: boolean) => void;
+  onKill?: (killerId: string, victimId: string) => void;
 }
 
-export const GameWorld = ({ onHealthUpdate, onWeaponUpdate }: GameWorldProps) => {
+export const GameWorld = ({ 
+  gameMode = 'team_deathmatch', 
+  mapType = 'factory',
+  onHealthUpdate, 
+  onWeaponUpdate,
+  onKill
+}: GameWorldProps) => {
   // Define keyboard controls mapping
   const keyboardMap = [
     { name: 'forward', keys: ['ArrowUp', 'KeyW'] },
@@ -27,8 +38,11 @@ export const GameWorld = ({ onHealthUpdate, onWeaponUpdate }: GameWorldProps) =>
           className="bg-background"
         >
           <GameScene 
+            gameMode={gameMode}
+            mapType={mapType}
             onHealthUpdate={onHealthUpdate}
             onWeaponUpdate={onWeaponUpdate}
+            onKill={onKill}
           />
         </Canvas>
       </KeyboardControls>

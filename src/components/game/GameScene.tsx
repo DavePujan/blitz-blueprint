@@ -3,17 +3,29 @@ import { Sky, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import { PlayerController } from './PlayerController';
 import { BulletTracer } from './BulletTracer';
+import { MapLoader } from './MapLoader';
 import type { Bullet } from '@/types/game';
 import type { WeaponType } from '@/types/weapons';
 import { useGameNetworking } from '@/hooks/useGameNetworking';
 import { useParams } from 'react-router-dom';
+import { GameModeType } from '@/types/gameMode';
+import { MapType } from '@/types/maps';
 
 interface GameSceneProps {
+  gameMode?: GameModeType;
+  mapType?: MapType;
   onHealthUpdate?: (health: number, maxHealth: number) => void;
   onWeaponUpdate?: (currentAmmo: number, reserveAmmo: number, weaponName: string, isReloading: boolean) => void;
+  onKill?: (killerId: string, victimId: string) => void;
 }
 
-export const GameScene = ({ onHealthUpdate, onWeaponUpdate }: GameSceneProps) => {
+export const GameScene = ({ 
+  gameMode = 'team_deathmatch',
+  mapType = 'factory',
+  onHealthUpdate, 
+  onWeaponUpdate,
+  onKill
+}: GameSceneProps) => {
   const { roomId } = useParams();
   const [bullets, setBullets] = useState<Bullet[]>([]);
   const [playerHealth, setPlayerHealth] = useState({ health: 100, maxHealth: 100 });
@@ -56,8 +68,11 @@ export const GameScene = ({ onHealthUpdate, onWeaponUpdate }: GameSceneProps) =>
 
   return (
     <>
-      {/* Lighting */}
-      <ambientLight intensity={0.5} />
+      {/* Sky and Environment */}
+      <Sky sunPosition={[100, 20, 100]} />
+      <Environment preset="sunset" />
+
+      {/* Directional Light */}
       <directionalLight
         position={[10, 20, 10]}
         intensity={1}
@@ -67,11 +82,8 @@ export const GameScene = ({ onHealthUpdate, onWeaponUpdate }: GameSceneProps) =>
       />
       <pointLight position={[-10, 10, -10]} intensity={0.5} />
 
-      {/* Sky */}
-      <Sky sunPosition={[100, 20, 100]} />
-      
-      {/* Environment */}
-      <Environment preset="sunset" />
+      {/* Map with cover, flags, and boundaries */}
+      <MapLoader mapType={mapType} gameMode={gameMode} />
 
       {/* Player Controller */}
       <PlayerController 
@@ -105,114 +117,16 @@ export const GameScene = ({ onHealthUpdate, onWeaponUpdate }: GameSceneProps) =>
           onComplete={() => {}}
         />
       ))}
-
-      {/* Ground/Arena */}
-      <Ground />
-
-      {/* Arena Walls */}
-      <ArenaWalls />
-
-      {/* Obstacles */}
-      <Obstacles />
     </>
   );
 };
 
+// Helper component for rendering other players
 const OtherPlayer = ({ player }: { player: any }) => {
   return (
     <mesh position={[player.position.x, player.position.y, player.position.z]} castShadow>
       <capsuleGeometry args={[0.5, 1, 4, 8]} />
       <meshStandardMaterial color="#ef4444" />
     </mesh>
-  );
-};
-
-const Ground = () => {
-  return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-      <planeGeometry args={[100, 100]} />
-      <meshStandardMaterial 
-        color="#1a1a2e" 
-        roughness={0.8}
-        metalness={0.2}
-      />
-    </mesh>
-  );
-};
-
-const ArenaWalls = () => {
-  const wallHeight = 5;
-  const arenaSize = 50;
-  
-  return (
-    <group>
-      {/* North Wall */}
-      <mesh position={[0, wallHeight / 2, -arenaSize / 2]} castShadow receiveShadow>
-        <boxGeometry args={[arenaSize, wallHeight, 1]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.7} />
-      </mesh>
-      
-      {/* South Wall */}
-      <mesh position={[0, wallHeight / 2, arenaSize / 2]} castShadow receiveShadow>
-        <boxGeometry args={[arenaSize, wallHeight, 1]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.7} />
-      </mesh>
-      
-      {/* East Wall */}
-      <mesh position={[arenaSize / 2, wallHeight / 2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[1, wallHeight, arenaSize]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.7} />
-      </mesh>
-      
-      {/* West Wall */}
-      <mesh position={[-arenaSize / 2, wallHeight / 2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[1, wallHeight, arenaSize]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.7} />
-      </mesh>
-    </group>
-  );
-};
-
-const Obstacles = () => {
-  return (
-    <group>
-      {/* Center cover */}
-      <mesh position={[0, 1, 0]} castShadow receiveShadow>
-        <boxGeometry args={[4, 2, 4]} />
-        <meshStandardMaterial color="#ef4444" roughness={0.6} />
-      </mesh>
-
-      {/* Corner covers */}
-      <mesh position={[15, 0.75, 15]} castShadow receiveShadow>
-        <boxGeometry args={[3, 1.5, 3]} />
-        <meshStandardMaterial color="#3b82f6" roughness={0.6} />
-      </mesh>
-
-      <mesh position={[-15, 0.75, -15]} castShadow receiveShadow>
-        <boxGeometry args={[3, 1.5, 3]} />
-        <meshStandardMaterial color="#3b82f6" roughness={0.6} />
-      </mesh>
-
-      <mesh position={[15, 0.75, -15]} castShadow receiveShadow>
-        <boxGeometry args={[3, 1.5, 3]} />
-        <meshStandardMaterial color="#22c55e" roughness={0.6} />
-      </mesh>
-
-      <mesh position={[-15, 0.75, 15]} castShadow receiveShadow>
-        <boxGeometry args={[3, 1.5, 3]} />
-        <meshStandardMaterial color="#22c55e" roughness={0.6} />
-      </mesh>
-
-      {/* Cylinders for variety */}
-      <mesh position={[8, 1.5, -8]} castShadow receiveShadow>
-        <cylinderGeometry args={[1.5, 1.5, 3, 16]} />
-        <meshStandardMaterial color="#f59e0b" roughness={0.5} />
-      </mesh>
-
-      <mesh position={[-8, 1.5, 8]} castShadow receiveShadow>
-        <cylinderGeometry args={[1.5, 1.5, 3, 16]} />
-        <meshStandardMaterial color="#f59e0b" roughness={0.5} />
-      </mesh>
-    </group>
   );
 };
