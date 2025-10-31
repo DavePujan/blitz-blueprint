@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useToast } from "./use-toast";
+import { roomSchema } from "@/lib/validation";
 
 interface Room {
   id: string;
@@ -73,6 +74,24 @@ export const useRooms = () => {
 
   const createRoom = async (name: string, password: string | null, gameMode: string, mapName: string): Promise<string | null> => {
     if (!user) return null;
+
+    // Validate room data
+    const validation = roomSchema.safeParse({
+      name,
+      password: password || '',
+      gameMode,
+      mapName
+    });
+    
+    if (!validation.success) {
+      const errors = validation.error.errors.map(err => err.message).join('. ');
+      toast({
+        title: "Validation failed",
+        description: errors,
+        variant: "destructive",
+      });
+      return null;
+    }
 
     try {
       const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();

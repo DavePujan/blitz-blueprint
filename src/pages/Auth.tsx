@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { signupSchema } from "@/lib/validation";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -26,6 +27,19 @@ const Auth = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate signup data
+    const validation = signupSchema.safeParse(signupData);
+    if (!validation.success) {
+      const errors = validation.error.errors.map(err => err.message).join('. ');
+      toast({
+        title: "Validation failed",
+        description: errors,
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -178,9 +192,13 @@ const Auth = () => {
                     value={signupData.password}
                     onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
                     required
-                    minLength={6}
+                    minLength={8}
                     className="bg-background-dark border-primary/20"
+                    placeholder="Min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char"
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Password must contain at least 8 characters with uppercase, lowercase, number, and special character (@$!%*?&#)
+                  </p>
                 </div>
                 <Button 
                   type="submit" 

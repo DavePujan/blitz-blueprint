@@ -369,6 +369,18 @@ export type Database = {
       }
     }
     Functions: {
+      record_match_event: {
+        Args: {
+          p_damage?: number
+          p_event_type: string
+          p_match_id: string
+          p_player_id: string
+          p_position?: Json
+          p_target_player_id?: string
+          p_weapon_type?: string
+        }
+        Returns: undefined
+      }
       set_room_password: {
         Args: { new_password: string; room_id: string }
         Returns: undefined
