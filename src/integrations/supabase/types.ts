@@ -14,6 +14,124 @@ export type Database = {
   }
   public: {
     Tables: {
+      battle_pass: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          end_date: string
+          id: string
+          is_active: boolean | null
+          max_tier: number | null
+          name: string
+          season_number: number
+          start_date: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          end_date: string
+          id?: string
+          is_active?: boolean | null
+          max_tier?: number | null
+          name: string
+          season_number: number
+          start_date: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          end_date?: string
+          id?: string
+          is_active?: boolean | null
+          max_tier?: number | null
+          name?: string
+          season_number?: number
+          start_date?: string
+        }
+        Relationships: []
+      }
+      battle_pass_progress: {
+        Row: {
+          battle_pass_id: string
+          created_at: string | null
+          current_tier: number | null
+          id: string
+          is_premium: boolean | null
+          player_id: string
+          updated_at: string | null
+          xp: number | null
+        }
+        Insert: {
+          battle_pass_id: string
+          created_at?: string | null
+          current_tier?: number | null
+          id?: string
+          is_premium?: boolean | null
+          player_id: string
+          updated_at?: string | null
+          xp?: number | null
+        }
+        Update: {
+          battle_pass_id?: string
+          created_at?: string | null
+          current_tier?: number | null
+          id?: string
+          is_premium?: boolean | null
+          player_id?: string
+          updated_at?: string | null
+          xp?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "battle_pass_progress_battle_pass_id_fkey"
+            columns: ["battle_pass_id"]
+            isOneToOne: false
+            referencedRelation: "battle_pass"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      battle_pass_rewards: {
+        Row: {
+          battle_pass_id: string
+          created_at: string | null
+          id: string
+          is_premium: boolean | null
+          reward_amount: number | null
+          reward_id: string | null
+          reward_type: string
+          tier: number
+        }
+        Insert: {
+          battle_pass_id: string
+          created_at?: string | null
+          id?: string
+          is_premium?: boolean | null
+          reward_amount?: number | null
+          reward_id?: string | null
+          reward_type: string
+          tier: number
+        }
+        Update: {
+          battle_pass_id?: string
+          created_at?: string | null
+          id?: string
+          is_premium?: boolean | null
+          reward_amount?: number | null
+          reward_id?: string | null
+          reward_type?: string
+          tier?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "battle_pass_rewards_battle_pass_id_fkey"
+            columns: ["battle_pass_id"]
+            isOneToOne: false
+            referencedRelation: "battle_pass"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       match_analytics: {
         Row: {
           accuracy_percentage: number | null
@@ -124,6 +242,33 @@ export type Database = {
           },
         ]
       }
+      player_inventory: {
+        Row: {
+          equipped: boolean | null
+          id: string
+          item_id: string
+          item_type: string
+          player_id: string
+          purchased_at: string | null
+        }
+        Insert: {
+          equipped?: boolean | null
+          id?: string
+          item_id: string
+          item_type: string
+          player_id: string
+          purchased_at?: string | null
+        }
+        Update: {
+          equipped?: boolean | null
+          id?: string
+          item_id?: string
+          item_type?: string
+          player_id?: string
+          purchased_at?: string | null
+        }
+        Relationships: []
+      }
       player_match_stats: {
         Row: {
           accuracy_percentage: number | null
@@ -179,6 +324,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      player_progression: {
+        Row: {
+          created_at: string | null
+          currency: number | null
+          id: string
+          level: number | null
+          player_id: string
+          premium_currency: number | null
+          total_deaths: number | null
+          total_kills: number | null
+          total_matches: number | null
+          updated_at: string | null
+          wins: number | null
+          xp: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: number | null
+          id?: string
+          level?: number | null
+          player_id: string
+          premium_currency?: number | null
+          total_deaths?: number | null
+          total_kills?: number | null
+          total_matches?: number | null
+          updated_at?: string | null
+          wins?: number | null
+          xp?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          currency?: number | null
+          id?: string
+          level?: number | null
+          player_id?: string
+          premium_currency?: number | null
+          total_deaths?: number | null
+          total_kills?: number | null
+          total_matches?: number | null
+          updated_at?: string | null
+          wins?: number | null
+          xp?: number | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -308,6 +498,123 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      skins_catalog: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_premium: boolean | null
+          name: string
+          price: number
+          rarity: string
+          skin_type: string
+          unlock_level: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_premium?: boolean | null
+          name: string
+          price: number
+          rarity: string
+          skin_type: string
+          unlock_level?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_premium?: boolean | null
+          name?: string
+          price?: number
+          rarity?: string
+          skin_type?: string
+          unlock_level?: number | null
+        }
+        Relationships: []
+      }
+      store_purchases: {
+        Row: {
+          currency_type: string
+          id: string
+          item_id: string
+          item_type: string
+          player_id: string
+          price: number
+          purchased_at: string | null
+        }
+        Insert: {
+          currency_type: string
+          id?: string
+          item_id: string
+          item_type: string
+          player_id: string
+          price: number
+          purchased_at?: string | null
+        }
+        Update: {
+          currency_type?: string
+          id?: string
+          item_id?: string
+          item_type?: string
+          player_id?: string
+          price?: number
+          purchased_at?: string | null
+        }
+        Relationships: []
+      }
+      weapons_catalog: {
+        Row: {
+          created_at: string | null
+          damage: number
+          description: string | null
+          fire_rate: number
+          id: string
+          is_premium: boolean | null
+          mag_size: number
+          name: string
+          price: number | null
+          reload_time: number
+          unlock_cost: number | null
+          unlock_level: number | null
+          weapon_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          damage: number
+          description?: string | null
+          fire_rate: number
+          id?: string
+          is_premium?: boolean | null
+          mag_size: number
+          name: string
+          price?: number | null
+          reload_time: number
+          unlock_cost?: number | null
+          unlock_level?: number | null
+          weapon_type: string
+        }
+        Update: {
+          created_at?: string | null
+          damage?: number
+          description?: string | null
+          fire_rate?: number
+          id?: string
+          is_premium?: boolean | null
+          mag_size?: number
+          name?: string
+          price?: number | null
+          reload_time?: number
+          unlock_cost?: number | null
+          unlock_level?: number | null
+          weapon_type?: string
+        }
+        Relationships: []
       }
     }
     Views: {

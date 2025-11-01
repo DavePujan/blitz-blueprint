@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Target, Users, Trophy, Shield } from "lucide-react";
+import { Target, Users, Trophy, Shield, ShoppingBag, Award, UserCircle } from "lucide-react";
 import heroBackground from "@/assets/hero-background.jpg";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -45,10 +47,10 @@ const Index = () => {
               <Button 
                 variant="hero" 
                 size="lg"
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate(user ? '/lobby' : '/auth')}
                 className="text-lg px-10 py-6 h-auto"
               >
-                Enter Lobby
+                {user ? 'Enter Lobby' : 'Sign In'}
               </Button>
               <Button 
                 variant="tactical" 
@@ -59,6 +61,24 @@ const Index = () => {
                 View Demo
               </Button>
             </div>
+
+            {/* Additional Navigation for Logged In Users */}
+            {user && (
+              <div className="flex flex-wrap gap-3 justify-center pt-4">
+                <Button variant="outline" onClick={() => navigate('/store')}>
+                  <ShoppingBag className="mr-2 h-4 w-4" />
+                  Store
+                </Button>
+                <Button variant="outline" onClick={() => navigate('/battle-pass')}>
+                  <Award className="mr-2 h-4 w-4" />
+                  Battle Pass
+                </Button>
+                <Button variant="outline" onClick={() => navigate('/profile')}>
+                  <UserCircle className="mr-2 h-4 w-4" />
+                  Profile
+                </Button>
+              </div>
+            )}
 
             {/* Feature Pills */}
             <div className="flex flex-wrap gap-4 justify-center pt-8">

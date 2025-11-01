@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Development database
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: game
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: game
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U game"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and matchmaking
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Frontend dev server (runs separately via npm)
+  # frontend:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.frontend
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - ./src:/app/src
+  #   environment:
+  #     - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+  #     - VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY}
+
+volumes:
+  pgdata:
