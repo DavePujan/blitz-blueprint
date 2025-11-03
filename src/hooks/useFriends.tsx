@@ -53,7 +53,7 @@ export const useFriends = () => {
 
       // Fetch accepted friends
       const { data: friendsData, error: friendsError } = await supabase
-        .from('friends')
+        .from('friends' as any)
         .select(`
           *,
           friend_profile:profiles!friends_friend_id_fkey(username, avatar_url)
@@ -65,7 +65,7 @@ export const useFriends = () => {
 
       // Fetch pending requests received
       const { data: requestsData, error: requestsError } = await supabase
-        .from('friends')
+        .from('friends' as any)
         .select(`
           *,
           friend_profile:profiles!friends_user_id_fkey(username, avatar_url)
@@ -75,8 +75,8 @@ export const useFriends = () => {
 
       if (requestsError) throw requestsError;
 
-      setFriends(friendsData || []);
-      setFriendRequests(requestsData || []);
+      setFriends((friendsData as any) || []);
+      setFriendRequests((requestsData as any) || []);
     } catch (error: any) {
       console.error('Error fetching friends:', error);
       toast({
@@ -104,7 +104,7 @@ export const useFriends = () => {
       if (profileError) throw new Error('User not found');
 
       const { error } = await supabase
-        .from('friends')
+        .from('friends' as any)
         .insert({
           user_id: user.id,
           friend_id: friendProfile.id,
@@ -131,7 +131,7 @@ export const useFriends = () => {
   const acceptFriendRequest = async (requestId: string) => {
     try {
       const { error } = await supabase
-        .from('friends')
+        .from('friends' as any)
         .update({ status: 'accepted' })
         .eq('id', requestId);
 
@@ -155,7 +155,7 @@ export const useFriends = () => {
   const removeFriend = async (friendId: string) => {
     try {
       const { error } = await supabase
-        .from('friends')
+        .from('friends' as any)
         .delete()
         .eq('id', friendId);
 

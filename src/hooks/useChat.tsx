@@ -58,7 +58,7 @@ export const useChat = (roomId?: string, clanId?: string, recipientId?: string) 
   const fetchMessages = async () => {
     try {
       let query = supabase
-        .from('chat_messages')
+        .from('chat_messages' as any)
         .select(`
           *,
           sender_profile:profiles!chat_messages_sender_id_fkey(username, avatar_url)
@@ -83,7 +83,7 @@ export const useChat = (roomId?: string, clanId?: string, recipientId?: string) 
       const { data, error } = await query;
 
       if (error) throw error;
-      setMessages(data || []);
+      setMessages((data as any) || []);
     } catch (error: any) {
       console.error('Error fetching messages:', error);
       toast({
@@ -120,7 +120,7 @@ export const useChat = (roomId?: string, clanId?: string, recipientId?: string) 
       }
 
       const { error } = await supabase
-        .from('chat_messages')
+        .from('chat_messages' as any)
         .insert(messageData);
 
       if (error) throw error;

@@ -44,7 +44,7 @@ export const useClans = () => {
       if (!user) return;
 
       const { data: membership, error: membershipError } = await supabase
-        .from('clan_members')
+        .from('clan_members' as any)
         .select('clan_id, role')
         .eq('player_id', user.id)
         .single();
@@ -53,14 +53,14 @@ export const useClans = () => {
 
       if (membership) {
         const { data: clan, error: clanError } = await supabase
-          .from('clans')
+          .from('clans' as any)
           .select('*')
-          .eq('id', membership.clan_id)
+          .eq('id', (membership as any).clan_id)
           .single();
 
         if (clanError) throw clanError;
-        setUserClan(clan);
-        fetchClanMembers(membership.clan_id);
+        setUserClan(clan as any);
+        fetchClanMembers((membership as any).clan_id);
       }
     } catch (error: any) {
       console.error('Error fetching user clan:', error);
@@ -72,7 +72,7 @@ export const useClans = () => {
   const fetchClanMembers = async (clanId: string) => {
     try {
       const { data, error } = await supabase
-        .from('clan_members')
+        .from('clan_members' as any)
         .select(`
           *,
           profile:profiles(username, avatar_url)
@@ -81,7 +81,7 @@ export const useClans = () => {
         .order('joined_at', { ascending: true });
 
       if (error) throw error;
-      setClanMembers(data || []);
+      setClanMembers((data as any) || []);
     } catch (error: any) {
       console.error('Error fetching clan members:', error);
     }
@@ -90,14 +90,14 @@ export const useClans = () => {
   const fetchAvailableClans = async () => {
     try {
       const { data, error } = await supabase
-        .from('clans')
+        .from('clans' as any)
         .select('*')
         .eq('is_public', true)
         .order('created_at', { ascending: false })
         .limit(20);
 
       if (error) throw error;
-      setAvailableClans(data || []);
+      setAvailableClans((data as any) || []);
     } catch (error: any) {
       console.error('Error fetching available clans:', error);
     }
@@ -109,7 +109,7 @@ export const useClans = () => {
       if (!user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase
-        .from('clans')
+        .from('clans' as any)
         .insert({
           name,
           tag: tag.toUpperCase(),
@@ -143,7 +143,7 @@ export const useClans = () => {
       if (!user) throw new Error('Not authenticated');
 
       const { error } = await supabase
-        .from('clan_members')
+        .from('clan_members' as any)
         .insert({
           clan_id: clanId,
           player_id: user.id,
@@ -173,7 +173,7 @@ export const useClans = () => {
       if (!user || !userClan) return;
 
       const { error } = await supabase
-        .from('clan_members')
+        .from('clan_members' as any)
         .delete()
         .eq('clan_id', userClan.id)
         .eq('player_id', user.id);
