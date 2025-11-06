@@ -14,6 +14,9 @@ import Store from "./pages/Store";
 import BattlePass from "./pages/BattlePass";
 import Profile from "./pages/Profile";
 import Social from "./pages/Social";
+import Leaderboard from "./pages/Leaderboard";
+import Achievements from "./pages/Achievements";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

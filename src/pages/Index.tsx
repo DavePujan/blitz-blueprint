@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Target, Users, Trophy, Shield, ShoppingBag, Award, UserCircle, UsersRound } from "lucide-react";
+import { Target, Users, Trophy, Shield, ShoppingBag, Award, UserCircle, UsersRound, Medal, User } from "lucide-react";
 import heroBackground from "@/assets/hero-background.jpg";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -80,6 +80,14 @@ const Index = () => {
                 <Button variant="outline" onClick={() => navigate('/social')}>
                   <UsersRound className="mr-2 h-4 w-4" />
                   Social
+                </Button>
+                <Button variant="outline" onClick={() => navigate('/leaderboard')}>
+                  <Trophy className="mr-2 h-4 w-4" />
+                  Leaderboard
+                </Button>
+                <Button variant="outline" onClick={() => navigate('/achievements')}>
+                  <Medal className="mr-2 h-4 w-4" />
+                  Achievements
                 </Button>
               </div>
             )}

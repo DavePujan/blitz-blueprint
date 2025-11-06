@@ -4,12 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Users, UserPlus, Shield, MessageCircle, Trophy, ArrowLeft } from 'lucide-react';
 import { useFriends } from '@/hooks/useFriends';
 import { useClans } from '@/hooks/useClans';
 import { useChat } from '@/hooks/useChat';
+import { useNotifications } from '@/hooks/useNotifications';
 import { useNavigate } from 'react-router-dom';
 
 export default function Social() {
