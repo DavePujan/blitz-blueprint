@@ -2,10 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, Users, Play, Copy, Check, LogOut } from "lucide-react";
+import { ArrowLeft, Lock, Users, Play, Copy, Check, LogOut, Target, Crosshair, Flag } from "lucide-react";
 import { useState } from "react";
 import { useRooms } from "@/hooks/useRooms";
 import { useAuth } from "@/hooks/useAuth";
+import { GameModeCard } from "@/components/GameModeCard";
+import { MapCard } from "@/components/MapCard";
 
 const Lobby = () => {
   const navigate = useNavigate();
@@ -150,43 +152,80 @@ const Lobby = () => {
                   />
                 </div>
 
-                {/* Room Settings */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Game Mode</label>
-                    <select 
-                      className="w-full px-4 py-2 rounded-md tactical-border bg-card text-foreground"
-                      value={gameMode}
-                      onChange={(e) => setGameMode(e.target.value)}
-                    >
-                      <option value="deathmatch">Team Deathmatch</option>
-                      <option value="objective">Objective</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Max Players</label>
-                    <select 
-                      className="w-full px-4 py-2 rounded-md tactical-border bg-card text-foreground"
-                      value={maxPlayers}
-                      onChange={(e) => setMaxPlayers(e.target.value)}
-                    >
-                      <option value="10">10 (5v5)</option>
-                      <option value="6">6 (3v3)</option>
-                      <option value="2">2 (1v1)</option>
-                    </select>
+                {/* Game Mode Selection */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <Target className="w-4 h-4 text-primary" />
+                    Select Game Mode
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <GameModeCard
+                      mode="deathmatch"
+                      title="Team Deathmatch"
+                      description="Classic team-based combat. Eliminate enemies to score points for your team."
+                      players="5v5"
+                      icon={<Crosshair className="h-5 w-5" />}
+                      selected={gameMode === 'deathmatch'}
+                      onSelect={() => setGameMode('deathmatch')}
+                    />
+                    <GameModeCard
+                      mode="objective"
+                      title="Objective Mode"
+                      description="Capture and hold strategic points. Teamwork is essential for victory."
+                      players="5v5"
+                      icon={<Flag className="h-5 w-5" />}
+                      selected={gameMode === 'objective'}
+                      onSelect={() => setGameMode('objective')}
+                    />
                   </div>
                 </div>
 
+                {/* Map Selection */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">Select Map</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <MapCard
+                      mapId="factory"
+                      name="Factory Complex"
+                      description="Urban industrial environment with tight corridors and vertical gameplay."
+                      size="Medium"
+                      selected={mapName === 'factory'}
+                      onSelect={() => setMapName('factory')}
+                    />
+                    <MapCard
+                      mapId="warehouse"
+                      name="Abandoned Warehouse"
+                      description="Large open spaces with multiple entry points. Perfect for tactical positioning."
+                      size="Large"
+                      selected={mapName === 'warehouse'}
+                      onSelect={() => setMapName('warehouse')}
+                    />
+                  </div>
+                </div>
+
+                {/* Max Players */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Map</label>
-                  <select 
-                    className="w-full px-4 py-2 rounded-md tactical-border bg-card text-foreground"
-                    value={mapName}
-                    onChange={(e) => setMapName(e.target.value)}
-                  >
-                    <option value="factory">Factory</option>
-                    <option value="warehouse">Warehouse</option>
-                  </select>
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <Users className="w-4 h-4 text-primary" />
+                    Max Players
+                  </label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {['10', '6', '2'].map((count) => (
+                      <Button
+                        key={count}
+                        variant={maxPlayers === count ? 'default' : 'outline'}
+                        onClick={() => setMaxPlayers(count)}
+                        className="h-auto py-3"
+                      >
+                        <div className="text-center">
+                          <div className="text-lg font-bold">{count}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {count === '10' ? '(5v5)' : count === '6' ? '(3v3)' : '(1v1)'}
+                          </div>
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Create Button */}

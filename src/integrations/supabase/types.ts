@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          is_secret: boolean
+          name: string
+          points: number
+          requirement_type: string
+          requirement_value: number
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          is_secret?: boolean
+          name: string
+          points?: number
+          requirement_type: string
+          requirement_value: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_secret?: boolean
+          name?: string
+          points?: number
+          requirement_type?: string
+          requirement_value?: number
+        }
+        Relationships: []
+      }
       battle_pass: {
         Row: {
           created_at: string | null
@@ -132,6 +168,230 @@ export type Database = {
           },
         ]
       }
+      chat_messages: {
+        Row: {
+          clan_id: string | null
+          content: string
+          created_at: string
+          id: string
+          room_id: string | null
+          sender_id: string
+        }
+        Insert: {
+          clan_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          room_id?: string | null
+          sender_id: string
+        }
+        Update: {
+          clan_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          room_id?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_clan_id_fkey"
+            columns: ["clan_id"]
+            isOneToOne: false
+            referencedRelation: "clans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clan_members: {
+        Row: {
+          clan_id: string
+          id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          clan_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          clan_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clan_members_clan_id_fkey"
+            columns: ["clan_id"]
+            isOneToOne: false
+            referencedRelation: "clans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clan_statistics: {
+        Row: {
+          average_kd: number
+          clan_id: string
+          id: string
+          rank: number | null
+          total_kills: number
+          total_matches: number
+          total_wins: number
+          updated_at: string
+        }
+        Insert: {
+          average_kd?: number
+          clan_id: string
+          id?: string
+          rank?: number | null
+          total_kills?: number
+          total_matches?: number
+          total_wins?: number
+          updated_at?: string
+        }
+        Update: {
+          average_kd?: number
+          clan_id?: string
+          id?: string
+          rank?: number | null
+          total_kills?: number
+          total_matches?: number
+          total_wins?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clan_statistics_clan_id_fkey"
+            columns: ["clan_id"]
+            isOneToOne: true
+            referencedRelation: "clans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clans: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          max_members: number
+          name: string
+          owner_id: string
+          tag: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          max_members?: number
+          name: string
+          owner_id: string
+          tag: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          max_members?: number
+          name?: string
+          owner_id?: string
+          tag?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      friends: {
+        Row: {
+          created_at: string
+          friend_id: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          friend_id: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          friend_id?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      leaderboard: {
+        Row: {
+          id: string
+          kd_ratio: number
+          player_id: string
+          rank: number | null
+          season: string
+          total_deaths: number
+          total_kills: number
+          total_matches: number
+          total_score: number
+          total_wins: number
+          updated_at: string
+          win_rate: number
+        }
+        Insert: {
+          id?: string
+          kd_ratio?: number
+          player_id: string
+          rank?: number | null
+          season?: string
+          total_deaths?: number
+          total_kills?: number
+          total_matches?: number
+          total_score?: number
+          total_wins?: number
+          updated_at?: string
+          win_rate?: number
+        }
+        Update: {
+          id?: string
+          kd_ratio?: number
+          player_id?: string
+          rank?: number | null
+          season?: string
+          total_deaths?: number
+          total_kills?: number
+          total_matches?: number
+          total_score?: number
+          total_wins?: number
+          updated_at?: string
+          win_rate?: number
+        }
+        Relationships: []
+      }
       match_analytics: {
         Row: {
           accuracy_percentage: number | null
@@ -241,6 +501,110 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json | null
+          id: string
+          is_read: boolean
+          message: string
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          is_read?: boolean
+          message: string
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          is_read?: boolean
+          message?: string
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      player_achievements: {
+        Row: {
+          achievement_id: string
+          created_at: string
+          id: string
+          is_completed: boolean
+          player_id: string
+          progress: number
+          unlocked_at: string | null
+        }
+        Insert: {
+          achievement_id: string
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          player_id: string
+          progress?: number
+          unlocked_at?: string | null
+        }
+        Update: {
+          achievement_id?: string
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          player_id?: string
+          progress?: number
+          unlocked_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_bans: {
+        Row: {
+          ban_type: Database["public"]["Enums"]["ban_type"]
+          banned_by: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          ban_type: Database["public"]["Enums"]["ban_type"]
+          banned_by: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          reason: string
+          user_id: string
+        }
+        Update: {
+          ban_type?: Database["public"]["Enums"]["ban_type"]
+          banned_by?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          reason?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       player_inventory: {
         Row: {
@@ -367,6 +731,45 @@ export type Database = {
           updated_at?: string | null
           wins?: number | null
           xp?: number | null
+        }
+        Relationships: []
+      }
+      player_reports: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          reason: Database["public"]["Enums"]["report_reason"]
+          reported_user_id: string
+          reporter_id: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["report_status"]
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason: Database["public"]["Enums"]["report_reason"]
+          reported_user_id: string
+          reporter_id: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason?: Database["public"]["Enums"]["report_reason"]
+          reported_user_id?: string
+          reporter_id?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
         }
         Relationships: []
       }
@@ -568,6 +971,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_online_status: {
+        Row: {
+          current_activity: string | null
+          is_online: boolean
+          last_seen: string
+          user_id: string
+        }
+        Insert: {
+          current_activity?: string | null
+          is_online?: boolean
+          last_seen?: string
+          user_id: string
+        }
+        Update: {
+          current_activity?: string | null
+          is_online?: boolean
+          last_seen?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       weapons_catalog: {
         Row: {
           created_at: string | null
@@ -676,6 +1121,13 @@ export type Database = {
       }
     }
     Functions: {
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       record_match_event: {
         Args: {
           p_damage?: number
@@ -698,7 +1150,24 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      ban_type: "temporary" | "permanent"
+      notification_type:
+        | "friend_request"
+        | "friend_accepted"
+        | "clan_invite"
+        | "clan_joined"
+        | "achievement_unlocked"
+        | "level_up"
+        | "match_invite"
+        | "system"
+      report_reason:
+        | "cheating"
+        | "toxic_behavior"
+        | "inappropriate_name"
+        | "spam"
+        | "other"
+      report_status: "pending" | "resolved" | "dismissed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -825,6 +1294,27 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      ban_type: ["temporary", "permanent"],
+      notification_type: [
+        "friend_request",
+        "friend_accepted",
+        "clan_invite",
+        "clan_joined",
+        "achievement_unlocked",
+        "level_up",
+        "match_invite",
+        "system",
+      ],
+      report_reason: [
+        "cheating",
+        "toxic_behavior",
+        "inappropriate_name",
+        "spam",
+        "other",
+      ],
+      report_status: ["pending", "resolved", "dismissed"],
+    },
   },
 } as const

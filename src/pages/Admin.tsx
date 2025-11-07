@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Shield, Users, Flag, Ban, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Shield, Users, Flag, Ban, TrendingUp, MessageSquare, Activity, UserCog } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useModeration } from '@/hooks/useModeration';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -41,6 +43,14 @@ export default function Admin() {
   const [selectedReport, setSelectedReport] = useState<string>('');
   const [banReason, setBanReason] = useState('');
   const [banType, setBanType] = useState<'temporary' | 'permanent'>('temporary');
+  const [chatLogs, setChatLogs] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [analyticsData, setAnalyticsData] = useState({
+    totalUsers: 0,
+    activeUsers: 0,
+    totalMatches: 0,
+    reportsToday: 0
+  });
 
   if (!isModerator && !loading) {
     return (
@@ -124,12 +134,127 @@ export default function Admin() {
           </Card>
         </div>
 
-        <Tabs defaultValue="reports" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="reports">Reports</TabsTrigger>
-            <TabsTrigger value="bans">Bans</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="overview">
+              <Activity className="h-4 w-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="reports">
+              <Flag className="h-4 w-4 mr-2" />
+              Reports
+            </TabsTrigger>
+            <TabsTrigger value="bans">
+              <Ban className="h-4 w-4 mr-2" />
+              Bans
+            </TabsTrigger>
+            <TabsTrigger value="users">
+              <Users className="h-4 w-4 mr-2" />
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="chat">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Chat Logs
+            </TabsTrigger>
           </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{analyticsData.totalUsers}</div>
+                  <p className="text-xs text-muted-foreground">registered accounts</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Active Today</CardTitle>
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{analyticsData.activeUsers}</div>
+                  <p className="text-xs text-muted-foreground">online in last 24h</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Matches</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{analyticsData.totalMatches}</div>
+                  <p className="text-xs text-muted-foreground">all time</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Reports Today</CardTitle>
+                  <Flag className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{analyticsData.reportsToday}</div>
+                  <p className="text-xs text-muted-foreground">last 24 hours</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Activity</CardTitle>
+                  <CardDescription>Latest moderation actions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {reports.slice(0, 5).map((report) => (
+                      <div key={report.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+                        <Flag className="h-4 w-4 text-muted-foreground" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">Report: {report.reason}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(report.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                        <Badge variant={report.status === 'pending' ? 'default' : 'secondary'}>
+                          {report.status}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Active Bans</CardTitle>
+                  <CardDescription>Currently enforced bans</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {bans.filter(b => b.is_active).slice(0, 5).map((ban) => (
+                      <div key={ban.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+                        <Ban className="h-4 w-4 text-destructive" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{ban.reason}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {ban.ban_type === 'permanent' ? 'Permanent' : `Expires: ${new Date(ban.expires_at).toLocaleDateString()}`}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
           <TabsContent value="reports" className="space-y-4">
             <Card>
@@ -306,10 +431,109 @@ export default function Admin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="users">
+          <TabsContent value="users" className="space-y-4">
             <Card>
-              <CardContent className="p-12 text-center text-muted-foreground">
-                User management coming soon...
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>User Management</CardTitle>
+                    <CardDescription>View and manage user accounts</CardDescription>
+                  </div>
+                  <Button variant="outline">
+                    <UserCog className="h-4 w-4 mr-2" />
+                    Manage Roles
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Joined</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarFallback>U</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">User data</p>
+                            <p className="text-sm text-muted-foreground">user@example.com</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">Active</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge>User</Badge>
+                      </TableCell>
+                      <TableCell>Jan 1, 2025</TableCell>
+                      <TableCell>
+                        <Button variant="outline" size="sm">Manage</Button>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Chat Logs Tab */}
+          <TabsContent value="chat" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Chat Logs</CardTitle>
+                <CardDescription>Monitor and review chat messages across all rooms and clans</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <Input placeholder="Search messages..." className="max-w-sm" />
+                    <Select>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Filter by source" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Messages</SelectItem>
+                        <SelectItem value="rooms">Room Chat</SelectItem>
+                        <SelectItem value="clans">Clan Chat</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <ScrollArea className="h-[500px]">
+                    <div className="space-y-3">
+                      <div className="p-4 rounded-lg bg-muted/30">
+                        <div className="flex items-start gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback className="text-xs">P1</AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-sm">Player123</span>
+                              <Badge variant="outline" className="text-xs">Room Chat</Badge>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date().toLocaleTimeString()}
+                              </span>
+                            </div>
+                            <p className="text-sm">Sample chat message content</p>
+                          </div>
+                          <Button variant="ghost" size="sm">
+                            <Flag className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </ScrollArea>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
