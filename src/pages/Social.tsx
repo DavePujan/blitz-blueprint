@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Users, UserPlus, Shield, MessageCircle, Trophy, ArrowLeft } from 'lucide-react';
+import { Users, UserPlus, Shield, MessageCircle, Trophy, ArrowLeft, Bell, CheckCheck } from 'lucide-react';
 import { useFriends } from '@/hooks/useFriends';
 import { useClans } from '@/hooks/useClans';
 import { useChat } from '@/hooks/useChat';
@@ -24,6 +24,7 @@ export default function Social() {
   const { friends, friendRequests, sendFriendRequest, acceptFriendRequest, removeFriend } = useFriends();
   const { userClan, clanMembers, availableClans, createClan, joinClan, leaveClan } = useClans();
   const { messages, sendMessage } = useChat(undefined, userClan?.id);
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   const handleSendFriendRequest = () => {
     if (friendUsername.trim()) {
@@ -69,7 +70,7 @@ export default function Social() {
         </div>
 
         <Tabs defaultValue="friends" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 tactical-border">
+          <TabsList className="grid w-full grid-cols-4 tactical-border">
             <TabsTrigger value="friends" className="gap-2">
               <Users className="h-4 w-4" />
               Friends
@@ -81,6 +82,15 @@ export default function Social() {
             <TabsTrigger value="chat" className="gap-2" disabled={!userClan}>
               <MessageCircle className="h-4 w-4" />
               Clan Chat
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="gap-2">
+              <Bell className="h-4 w-4" />
+              Notifications
+              {unreadCount > 0 && (
+                <Badge variant="destructive" className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                  {unreadCount}
+                </Badge>
+              )}
             </TabsTrigger>
           </TabsList>
 
@@ -149,12 +159,17 @@ export default function Social() {
                     ) : (
                       friends.map((friend) => (
                         <div key={friend.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover-tactical">
-                          <div className="flex items-center gap-3">
-                            <Avatar>
-                              <AvatarFallback>{friend.friend_profile?.username[0]}</AvatarFallback>
-                            </Avatar>
-                            <span className="font-medium">{friend.friend_profile?.username}</span>
-                            <Badge variant="outline" className="border-primary/50">Online</Badge>
+                           <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <Avatar>
+                                <AvatarFallback>{friend.friend_profile?.username[0]}</AvatarFallback>
+                              </Avatar>
+                              <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-background" />
+                            </div>
+                            <div>
+                              <span className="font-medium">{friend.friend_profile?.username}</span>
+                              <p className="text-xs text-muted-foreground">Online</p>
+                            </div>
                           </div>
                           <Button variant="ghost" size="sm" onClick={() => removeFriend(friend.id)}>
                             Remove
@@ -325,6 +340,72 @@ export default function Social() {
                     Send
                   </Button>
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Notifications Tab */}
+          <TabsContent value="notifications" className="space-y-6">
+            <Card className="tactical-border">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Bell className="h-5 w-5 text-primary" />
+                      Notifications
+                    </CardTitle>
+                    <CardDescription>
+                      {unreadCount > 0 
+                        ? `${unreadCount} unread notification(s)` 
+                        : 'You\'re all caught up!'}
+                    </CardDescription>
+                  </div>
+                  {unreadCount > 0 && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={markAllAsRead}
+                      className="gap-2"
+                    >
+                      <CheckCheck className="h-4 w-4" />
+                      Mark all as read
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[500px]">
+                  <div className="space-y-3">
+                    {notifications.length === 0 ? (
+                      <p className="text-center text-muted-foreground py-8">No notifications yet</p>
+                    ) : (
+                      notifications.map((notification) => (
+                        <div 
+                          key={notification.id} 
+                          className={`p-4 rounded-lg ${
+                            notification.is_read ? 'bg-muted/30' : 'bg-primary/10 border border-primary/20'
+                          } hover-tactical cursor-pointer`}
+                          onClick={() => markAsRead(notification.id)}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-semibold">{notification.title}</h4>
+                                {!notification.is_read && (
+                                  <Badge variant="default" className="h-5 text-xs">New</Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground">{notification.message}</p>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                {new Date(notification.created_at).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
               </CardContent>
             </Card>
           </TabsContent>
