@@ -21,7 +21,8 @@ export const useNotifications = () => {
 
   useEffect(() => {
     fetchNotifications();
-    setupRealtimeSubscription();
+    const cleanup = setupRealtimeSubscription();
+    return cleanup;
   }, []);
 
   const setupRealtimeSubscription = () => {

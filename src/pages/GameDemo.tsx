@@ -50,9 +50,15 @@ const GameDemo = () => {
           .from('rooms')
           .select('game_mode, map_name')
           .eq('id', roomId)
-          .single();
+          .maybeSingle();
 
         if (roomError) throw roomError;
+        
+        if (!roomData) {
+          console.error('Room not found');
+          navigate('/lobby');
+          return;
+        }
 
         // Set game mode and map
         setGameMode(roomData.game_mode as GameModeType);
@@ -64,11 +70,11 @@ const GameDemo = () => {
           .select('team')
           .eq('room_id', roomId)
           .eq('player_id', user.id)
-          .single();
+          .maybeSingle();
 
         if (playerError) throw playerError;
         
-        if (playerData.team) {
+        if (playerData?.team) {
           setPlayerTeam(playerData.team as 'blue' | 'red');
         }
 
@@ -81,11 +87,12 @@ const GameDemo = () => {
         }, 2000);
       } catch (error) {
         console.error('Error loading room data:', error);
+        navigate('/lobby');
       }
     };
 
     loadRoomData();
-  }, [roomId, user, initializePlayer, startMatch]);
+  }, [roomId, user, initializePlayer, startMatch, navigate]);
 
   // Handle scoreboard toggle
   useEffect(() => {

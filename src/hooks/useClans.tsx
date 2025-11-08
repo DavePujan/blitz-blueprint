@@ -47,9 +47,9 @@ export const useClans = () => {
         .from('clan_members' as any)
         .select('clan_id, role')
         .eq('player_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (membershipError && membershipError.code !== 'PGRST116') throw membershipError;
+      if (membershipError) throw membershipError;
 
       if (membership) {
         const { data: clan, error: clanError } = await supabase

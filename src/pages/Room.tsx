@@ -109,9 +109,20 @@ const Room = () => {
         .from('rooms_public')
         .select('*')
         .eq('id', roomId)
-        .single();
+        .maybeSingle();
 
       if (roomError) throw roomError;
+      
+      if (!roomData) {
+        toast({
+          variant: "destructive",
+          title: "Room not found",
+          description: "This room no longer exists",
+        });
+        navigate('/lobby');
+        return;
+      }
+      
       setRoom(roomData as Room);
 
       // Fetch players

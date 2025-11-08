@@ -139,11 +139,13 @@ export const useStore = () => {
 
       // Update progression currency (deduct)
       const field = currencyType === 'premium_currency' ? 'premium_currency' : 'currency';
-      const { data: progressionData } = await supabase
+      const { data: progressionData, error: progressionError } = await supabase
         .from('player_progression')
         .select(field)
         .eq('player_id', user.id)
-        .single();
+        .maybeSingle();
+
+      if (progressionError) throw progressionError;
 
       if (progressionData) {
         const currentAmount = progressionData[field];
@@ -155,6 +157,8 @@ export const useStore = () => {
           .from('player_progression')
           .update({ [field]: currentAmount - price })
           .eq('player_id', user.id);
+      } else {
+        throw new Error('Player progression not initialized');
       }
 
       await fetchInventory();

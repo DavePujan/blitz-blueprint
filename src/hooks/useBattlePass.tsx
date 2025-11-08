@@ -71,7 +71,7 @@ export const useBattlePass = () => {
 
         // Fetch player progress
         if (user) {
-          const { data: progressData, error: progressError } = await supabase
+          let { data: progressData, error: progressError } = await supabase
             .from('battle_pass_progress')
             .select('*')
             .eq('player_id', user.id)
@@ -79,6 +79,25 @@ export const useBattlePass = () => {
             .maybeSingle();
 
           if (progressError) throw progressError;
+          
+          // Auto-create progress if doesn't exist
+          if (!progressData) {
+            const { data: newProgress, error: insertError } = await supabase
+              .from('battle_pass_progress')
+              .insert({
+                player_id: user.id,
+                battle_pass_id: bpData.id,
+                current_tier: 1,
+                xp: 0,
+                is_premium: false
+              })
+              .select()
+              .single();
+
+            if (insertError) throw insertError;
+            progressData = newProgress;
+          }
+
           setProgress(progressData);
         }
       }

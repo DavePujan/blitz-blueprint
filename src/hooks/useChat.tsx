@@ -24,7 +24,8 @@ export const useChat = (roomId?: string, clanId?: string, recipientId?: string) 
 
   useEffect(() => {
     fetchMessages();
-    setupRealtimeSubscription();
+    const cleanup = setupRealtimeSubscription();
+    return cleanup;
   }, [roomId, clanId, recipientId]);
 
   const setupRealtimeSubscription = () => {

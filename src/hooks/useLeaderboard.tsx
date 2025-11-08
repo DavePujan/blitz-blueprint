@@ -48,7 +48,7 @@ export const useLeaderboard = (season: string = 'current') => {
       // Fetch current user's rank
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: userRankData } = await supabase
+        const { data: userRankData, error: userRankError } = await supabase
           .from('leaderboards' as any)
           .select(`
             *,
@@ -56,8 +56,9 @@ export const useLeaderboard = (season: string = 'current') => {
           `)
           .eq('season', season)
           .eq('player_id', user.id)
-          .single();
+          .maybeSingle();
 
+        if (userRankError) console.error('Error fetching user rank:', userRankError);
         setUserRank((userRankData as any) || null);
       }
     } catch (error: any) {

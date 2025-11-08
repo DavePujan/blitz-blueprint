@@ -22,7 +22,8 @@ export const useFriends = () => {
 
   useEffect(() => {
     fetchFriends();
-    setupRealtimeSubscription();
+    const cleanup = setupRealtimeSubscription();
+    return cleanup;
   }, []);
 
   const setupRealtimeSubscription = () => {
@@ -99,9 +100,18 @@ export const useFriends = () => {
         .from('profiles')
         .select('id')
         .eq('username', friendUsername)
-        .single();
+        .maybeSingle();
 
-      if (profileError) throw new Error('User not found');
+      if (profileError) throw profileError;
+      
+      if (!friendProfile) {
+        toast({
+          title: 'User Not Found',
+          description: `No user found with username "${friendUsername}"`,
+          variant: 'destructive',
+        });
+        return;
+      }
 
       const { error } = await supabase
         .from('friends' as any)

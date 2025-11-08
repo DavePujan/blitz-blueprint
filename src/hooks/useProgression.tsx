@@ -29,15 +29,37 @@ export const useProgression = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('player_progression')
         .select('*')
         .eq('player_id', user.id)
-        .single();
+        .maybeSingle();
+
+      // If no progression exists, create it
+      if (!data && !error) {
+        const { data: newData, error: insertError } = await supabase
+          .from('player_progression')
+          .insert({
+            player_id: user.id,
+            level: 1,
+            xp: 0,
+            total_kills: 0,
+            total_deaths: 0,
+            total_matches: 0,
+            wins: 0,
+            currency: 1000,
+            premium_currency: 0
+          })
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        data = newData;
+      }
 
       if (error) throw error;
       setProgression(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching progression:', error);
       toast({
         title: 'Error',
