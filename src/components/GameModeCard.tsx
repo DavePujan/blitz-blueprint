@@ -23,21 +23,21 @@ export function GameModeCard({
 }: GameModeCardProps) {
   return (
     <Card 
-      className={`cursor-pointer transition-all hover:scale-105 ${
+      className={`cursor-pointer transition-all tactical-border ${
         selected 
-          ? 'border-primary bg-primary/5 shadow-lg shadow-primary/20' 
-          : 'hover:border-primary/50'
+          ? 'bg-gradient-to-br from-primary/10 to-background ring-2 ring-primary/40 shadow-[0_0_30px_-10px] shadow-primary/40' 
+          : 'hover:bg-accent/40 hover:ring-1 hover:ring-primary/30 hover:shadow-[0_0_20px_-12px] hover:shadow-primary/30'
       }`}
       onClick={onSelect}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${selected ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+            <div className={`p-2 rounded-lg ${selected ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}>
               {icon}
             </div>
             <div>
-              <CardTitle className="text-lg">{title}</CardTitle>
+              <CardTitle className="text-lg text-foreground">{title}</CardTitle>
               <Badge variant="outline" className="mt-1">
                 {players}
               </Badge>
@@ -51,7 +51,7 @@ export function GameModeCard({
         </div>
       </CardHeader>
       <CardContent>
-        <CardDescription className="text-sm">{description}</CardDescription>
+        <CardDescription className="text-sm text-muted-foreground">{description}</CardDescription>
       </CardContent>
     </Card>
   );
