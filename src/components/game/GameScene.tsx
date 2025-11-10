@@ -68,19 +68,47 @@ export const GameScene = ({
 
   return (
     <>
-      {/* Sky and Environment */}
-      <Sky sunPosition={[100, 20, 100]} />
-      <Environment preset="sunset" />
-
-      {/* Directional Light */}
-      <directionalLight
-        position={[10, 20, 10]}
-        intensity={1}
-        castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+      {/* Enhanced Sky and Environment */}
+      <Sky 
+        sunPosition={[100, 10, 100]} 
+        turbidity={8}
+        rayleigh={6}
+        mieCoefficient={0.005}
+        mieDirectionalG={0.8}
+        inclination={0.3}
+        azimuth={0.25}
       />
-      <pointLight position={[-10, 10, -10]} intensity={0.5} />
+      <Environment preset="city" background={false} />
+      
+      {/* Ambient lighting for overall scene illumination */}
+      <ambientLight intensity={0.3} color="#b0c4de" />
+      
+      {/* Main directional light (sun) */}
+      <directionalLight
+        position={[50, 50, 50]}
+        intensity={1.5}
+        castShadow
+        shadow-mapSize-width={4096}
+        shadow-mapSize-height={4096}
+        shadow-camera-left={-50}
+        shadow-camera-right={50}
+        shadow-camera-top={50}
+        shadow-camera-bottom={-50}
+        shadow-camera-near={0.1}
+        shadow-camera-far={200}
+        shadow-bias={-0.0001}
+        color="#fef3c7"
+      />
+      
+      {/* Fill lights for better visibility */}
+      <pointLight position={[-20, 15, -20]} intensity={0.8} color="#60a5fa" distance={60} />
+      <pointLight position={[20, 15, 20]} intensity={0.8} color="#fbbf24" distance={60} />
+      
+      {/* Hemisphere light for natural ambient lighting */}
+      <hemisphereLight 
+        args={['#87ceeb', '#6b7280', 0.5]} 
+        position={[0, 50, 0]}
+      />
 
       {/* Map with cover, flags, and boundaries */}
       <MapLoader mapType={mapType} gameMode={gameMode} />

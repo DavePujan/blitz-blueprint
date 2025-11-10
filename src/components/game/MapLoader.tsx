@@ -14,50 +14,125 @@ export const MapLoader = ({ mapType, gameMode }: MapLoaderProps) => {
 
   return (
     <>
-      {/* Ambient lighting based on map */}
-      <ambientLight intensity={0.4} color={map.ambientColor} />
-      <hemisphereLight args={[map.ambientColor, '#000000', 0.6]} />
-      
-      {/* Fog */}
-      <fog attach="fog" args={[map.fogColor, 10, 200]} />
+      {/* Atmospheric fog */}
+      <fog attach="fog" args={['#87ceeb', 50, 250]} />
 
-      {/* Ground */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
-        <planeGeometry args={[
-          map.bounds.maxX - map.bounds.minX,
-          map.bounds.maxZ - map.bounds.minZ
-        ]} />
-        <meshStandardMaterial 
-          color="#2a2a2a" 
-          roughness={0.9}
-          metalness={0.1}
+      {/* Ground plane with grid pattern */}
+      <group>
+        {/* Main ground */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, -0.01, 0]}>
+          <planeGeometry args={[
+            map.bounds.maxX - map.bounds.minX,
+            map.bounds.maxZ - map.bounds.minZ
+          ]} />
+          <meshStandardMaterial 
+            color="#4a5568"
+            roughness={0.85}
+            metalness={0.05}
+          />
+        </mesh>
+
+        {/* Grid overlay for tactical feel */}
+        <gridHelper 
+          args={[
+            Math.max(map.bounds.maxX - map.bounds.minX, map.bounds.maxZ - map.bounds.minZ),
+            40,
+            '#38bdf8',
+            '#1e293b'
+          ]} 
+          position={[0, 0.02, 0]}
         />
-      </mesh>
+      </group>
 
-      {/* Arena boundaries */}
+      {/* Enhanced arena boundaries with tactical styling */}
       {/* North wall */}
-      <mesh position={[0, 2.5, map.bounds.maxZ]} castShadow receiveShadow>
-        <boxGeometry args={[map.bounds.maxX - map.bounds.minX, 5, 1]} />
-        <meshStandardMaterial color="#1a1a1a" />
-      </mesh>
+      <group position={[0, 2.5, map.bounds.maxZ]}>
+        <mesh castShadow receiveShadow>
+          <boxGeometry args={[map.bounds.maxX - map.bounds.minX, 5, 0.5]} />
+          <meshStandardMaterial 
+            color="#2d3748"
+            roughness={0.7}
+            metalness={0.3}
+            emissive="#38bdf8"
+            emissiveIntensity={0.1}
+          />
+        </mesh>
+        {/* Wall highlight */}
+        <mesh position={[0, 2, 0.3]}>
+          <boxGeometry args={[map.bounds.maxX - map.bounds.minX, 0.1, 0.1]} />
+          <meshStandardMaterial 
+            color="#38bdf8"
+            emissive="#38bdf8"
+            emissiveIntensity={0.5}
+          />
+        </mesh>
+      </group>
 
       {/* South wall */}
-      <mesh position={[0, 2.5, map.bounds.minZ]} castShadow receiveShadow>
-        <boxGeometry args={[map.bounds.maxX - map.bounds.minX, 5, 1]} />
-        <meshStandardMaterial color="#1a1a1a" />
-      </mesh>
+      <group position={[0, 2.5, map.bounds.minZ]}>
+        <mesh castShadow receiveShadow>
+          <boxGeometry args={[map.bounds.maxX - map.bounds.minX, 5, 0.5]} />
+          <meshStandardMaterial 
+            color="#2d3748"
+            roughness={0.7}
+            metalness={0.3}
+            emissive="#38bdf8"
+            emissiveIntensity={0.1}
+          />
+        </mesh>
+        <mesh position={[0, 2, -0.3]}>
+          <boxGeometry args={[map.bounds.maxX - map.bounds.minX, 0.1, 0.1]} />
+          <meshStandardMaterial 
+            color="#38bdf8"
+            emissive="#38bdf8"
+            emissiveIntensity={0.5}
+          />
+        </mesh>
+      </group>
 
       {/* East wall */}
-      <mesh position={[map.bounds.maxX, 2.5, 0]} castShadow receiveShadow>
-        <boxGeometry args={[1, 5, map.bounds.maxZ - map.bounds.minZ]} />
-        <meshStandardMaterial color="#1a1a1a" />
-      </mesh>
+      <group position={[map.bounds.maxX, 2.5, 0]}>
+        <mesh castShadow receiveShadow>
+          <boxGeometry args={[0.5, 5, map.bounds.maxZ - map.bounds.minZ]} />
+          <meshStandardMaterial 
+            color="#2d3748"
+            roughness={0.7}
+            metalness={0.3}
+            emissive="#38bdf8"
+            emissiveIntensity={0.1}
+          />
+        </mesh>
+        <mesh position={[0.3, 2, 0]}>
+          <boxGeometry args={[0.1, 0.1, map.bounds.maxZ - map.bounds.minZ]} />
+          <meshStandardMaterial 
+            color="#38bdf8"
+            emissive="#38bdf8"
+            emissiveIntensity={0.5}
+          />
+        </mesh>
+      </group>
 
       {/* West wall */}
-      <mesh position={[map.bounds.minX, 2.5, 0]} castShadow receiveShadow>
-        <boxGeometry args={[1, 5, map.bounds.maxZ - map.bounds.minZ]} />
-        <meshStandardMaterial color="#1a1a1a" />
-      </mesh>
+      <group position={[map.bounds.minX, 2.5, 0]}>
+        <mesh castShadow receiveShadow>
+          <boxGeometry args={[0.5, 5, map.bounds.maxZ - map.bounds.minZ]} />
+          <meshStandardMaterial 
+            color="#2d3748"
+            roughness={0.7}
+            metalness={0.3}
+            emissive="#38bdf8"
+            emissiveIntensity={0.1}
+          />
+        </mesh>
+        <mesh position={[-0.3, 2, 0]}>
+          <boxGeometry args={[0.1, 0.1, map.bounds.maxZ - map.bounds.minZ]} />
+          <meshStandardMaterial 
+            color="#38bdf8"
+            emissive="#38bdf8"
+            emissiveIntensity={0.5}
+          />
+        </mesh>
+      </group>
 
       {/* Cover objects */}
       {map.coverObjects.map((cover, index) => (
