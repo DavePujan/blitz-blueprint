@@ -16,81 +16,112 @@ export const MatchHUD = ({ matchState }: MatchHUDProps) => {
   const isCTF = matchState.mode === 'capture_flag';
 
   return (
-    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
-      <div className="bg-black/70 backdrop-blur-sm border border-primary/30 rounded-lg px-6 py-3 shadow-lg">
+    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
+      <div className="bg-background/95 backdrop-blur-md border border-border/50 rounded-lg px-8 py-4 shadow-2xl">
+        
         {/* Timer */}
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <Timer className="w-5 h-5 text-primary" />
-          <span className="text-2xl font-bold text-white tabular-nums">
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <div className="p-1.5 bg-primary/10 rounded-lg">
+            <Timer className="w-5 h-5 text-primary" />
+          </div>
+          <span className="text-3xl font-bold text-foreground tabular-nums font-mono tracking-tight">
             {formatTime(matchState.timeRemaining)}
           </span>
         </div>
 
         {/* Scores */}
         {isTeamBased ? (
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-8 justify-center">
             {/* Blue Team */}
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-blue-500" />
-              <span className="text-xl font-bold text-blue-400">
-                {isCTF ? matchState.teamScores.blue : matchState.teamScores.blue}
-              </span>
-              {isCTF && <Flag className="w-4 h-4 text-blue-400" />}
+            <div className="flex items-center gap-3">
+              <div className="w-4 h-4 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)]" />
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-400 tabular-nums font-mono">
+                  {matchState.teamScores.blue}
+                </div>
+                <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                  Blue
+                </div>
+              </div>
+              {isCTF && <Flag className="w-5 h-5 text-blue-400/80" />}
             </div>
 
-            {/* VS Divider */}
-            <div className="text-muted-foreground font-bold">VS</div>
+            {/* Divider */}
+            <div className="text-muted-foreground/50 font-bold text-lg">—</div>
 
             {/* Red Team */}
-            <div className="flex items-center gap-2">
-              {isCTF && <Flag className="w-4 h-4 text-red-400" />}
-              <span className="text-xl font-bold text-red-400">
-                {isCTF ? matchState.teamScores.red : matchState.teamScores.red}
-              </span>
-              <div className="w-3 h-3 rounded-full bg-red-500" />
+            <div className="flex items-center gap-3">
+              {isCTF && <Flag className="w-5 h-5 text-red-400/80" />}
+              <div className="text-center">
+                <div className="text-2xl font-bold text-red-400 tabular-nums font-mono">
+                  {matchState.teamScores.red}
+                </div>
+                <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                  Red
+                </div>
+              </div>
+              <div className="w-4 h-4 rounded-full bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.6)]" />
             </div>
           </div>
         ) : (
-          // Free For All - Show your score
-          <div className="flex items-center justify-center gap-2">
-            <Target className="w-5 h-5 text-primary" />
-            <span className="text-xl font-bold text-white">
-              {Array.from(matchState.playerScores.values())[0]?.kills || 0} Kills
-            </span>
+          // Deathmatch - Show player score
+          <div className="flex items-center justify-center gap-3">
+            <div className="p-1.5 bg-primary/10 rounded-lg">
+              <Target className="w-5 h-5 text-primary" />
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-foreground tabular-nums font-mono">
+                {Array.from(matchState.playerScores.values())[0]?.kills || 0}
+              </div>
+              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                Kills
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Match Status Indicator */}
+        {/* Match Status */}
         {matchState.matchStatus === 'waiting' && (
-          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-            <span className="text-sm text-yellow-400 animate-pulse">
-              Waiting for players...
-            </span>
+          <div className="mt-3 pt-3 border-t border-border/50">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
+              <span className="text-sm text-yellow-500/90 font-medium">
+                Waiting for players...
+              </span>
+            </div>
           </div>
         )}
       </div>
 
       {/* Flag Status (CTF Mode) */}
       {isCTF && matchState.matchStatus === 'active' && (
-        <div className="mt-2 flex gap-4 justify-center">
-          {/* Blue Flag Status */}
-          <div className={`px-3 py-1 rounded ${
+        <div className="mt-3 flex gap-3 justify-center">
+          {/* Blue Flag */}
+          <div className={`px-4 py-2 rounded-lg backdrop-blur-md border shadow-lg transition-all ${
             matchState.blueFlag?.captured 
-              ? 'bg-red-500/80 text-white' 
-              : 'bg-blue-500/80 text-white'
+              ? 'bg-red-500/90 border-red-400/50 text-white shadow-red-500/30' 
+              : 'bg-blue-500/90 border-blue-400/50 text-white shadow-blue-500/30'
           }`}>
-            <Flag className="w-4 h-4 inline mr-1" />
-            {matchState.blueFlag?.captured ? 'TAKEN' : 'SAFE'}
+            <div className="flex items-center gap-2">
+              <Flag className="w-4 h-4" />
+              <span className="text-sm font-bold uppercase tracking-wide">
+                {matchState.blueFlag?.captured ? 'Taken' : 'Safe'}
+              </span>
+            </div>
           </div>
 
-          {/* Red Flag Status */}
-          <div className={`px-3 py-1 rounded ${
+          {/* Red Flag */}
+          <div className={`px-4 py-2 rounded-lg backdrop-blur-md border shadow-lg transition-all ${
             matchState.redFlag?.captured 
-              ? 'bg-blue-500/80 text-white' 
-              : 'bg-red-500/80 text-white'
+              ? 'bg-blue-500/90 border-blue-400/50 text-white shadow-blue-500/30' 
+              : 'bg-red-500/90 border-red-400/50 text-white shadow-red-500/30'
           }`}>
-            <Flag className="w-4 h-4 inline mr-1" />
-            {matchState.redFlag?.captured ? 'TAKEN' : 'SAFE'}
+            <div className="flex items-center gap-2">
+              <Flag className="w-4 h-4" />
+              <span className="text-sm font-bold uppercase tracking-wide">
+                {matchState.redFlag?.captured ? 'Taken' : 'Safe'}
+              </span>
+            </div>
           </div>
         </div>
       )}
