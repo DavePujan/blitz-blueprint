@@ -4,12 +4,15 @@ import * as THREE from 'three';
 import { PlayerController } from './PlayerController';
 import { BulletTracer } from './BulletTracer';
 import { MapLoader } from './MapLoader';
+import { AtmosphericParticles, FloatingDebris } from './AtmosphericParticles';
+import { DynamicLights } from './DynamicLights';
+import { LightShafts } from './VolumetricLight';
 import type { Bullet } from '@/types/game';
 import type { WeaponType } from '@/types/weapons';
 import { useGameNetworking } from '@/hooks/useGameNetworking';
 import { useParams } from 'react-router-dom';
 import { GameModeType } from '@/types/gameMode';
-import { MapType } from '@/types/maps';
+import { MapType, MAPS } from '@/types/maps';
 
 interface GameSceneProps {
   gameMode?: GameModeType;
@@ -66,6 +69,8 @@ export const GameScene = ({
     onWeaponUpdate?.(currentAmmo, reserveAmmo, weaponName, isReloading);
   };
 
+  const mapBounds = MAPS[mapType]?.bounds || { minX: -50, maxX: 50, minZ: -50, maxZ: 50 };
+
   return (
     <>
       {/* Enhanced Sky and Environment */}
@@ -112,6 +117,14 @@ export const GameScene = ({
 
       {/* Map with cover, flags, and boundaries */}
       <MapLoader mapType={mapType} gameMode={gameMode} />
+
+      {/* Atmospheric Effects */}
+      <AtmosphericParticles count={250} bounds={mapBounds} />
+      <FloatingDebris count={20} />
+      <LightShafts />
+
+      {/* Dynamic Lighting */}
+      <DynamicLights mapBounds={mapBounds} />
 
       {/* Player Controller */}
       <PlayerController 
